@@ -9,6 +9,7 @@ PS = "QrE5cP?@YpsE"
 db = TinyDB("db.json")
 User = Query()
 current_refresh_token = db.all()[0].get('refresh_token')
+current_access_token = db.all()[0].get('access_token')
 
 
 class initial_refresh_token:
@@ -56,8 +57,38 @@ class refresh_token(initial_refresh_token):
             return new_refresh_token
 
 
+class access_token(refresh_token):
+    def __init__(self, current_access_token, current_refresh_token, CLIENT_SECRET, USERNAME, PS):
+        self.current_access_token = current_access_token
+        refresh_token.__init__(self, current_refresh_token,
+                               CLIENT_SECRET, USERNAME, PS)
+
+    def get_access_token(self):
+        headers = {"Authorization": f"Basic {CLIENT_SECRET}",
+                   "Content-Type": "application/x-www-form-urlencoded"}
+        data = {"scope": "rates", "grant_type": "refresh_token",
+                "refresh_token": current_refresh_token}
+        r = requests.post("https://api-int.truckstop.com/auth/token",
+                          headers=headers, data=data)
+
+        json_response = r.json()
+        new_access_token = json_response['access_token']
+        db.update({"access_token": new_access_token})
+        return new_access_token
+
+    def access_token_expired(self):
+        headers = {"Authorization": f"Bearer {current_refresh_token}",
+                   "Content-Type": "application/json"}
+        r = requests.get(
+            "https://api-int.truckstop.com/rates/v1/formulas", headers=headers)
+        # json_response = r.json()
+        return r.status_code
+
+
 class view_config:
     def formulas(self):
+        # if current_access_token == "":
+
         headers = {"Authorization": f"Bearer {current_refresh_token}",
                    "Content-Type": "application/json"}
         r = requests.get("https://api-int.truckstop.com/rates/v1/formulas",
@@ -67,32 +98,20 @@ class view_config:
 
 
 def main():
-    refresh_access_token = refresh_token(
+    # classes
+    receive_refresh_token = refresh_token(
         current_refresh_token, CLIENT_SECRET, USERNAME, PS)
 
-    refresh_access_token.get_refresh_token()
+    receive_refresh_token.get_refresh_token()
 
-    view_formulas = view_config()
-    print(view_formulas.formulas())
+    accesstoken = access_token(current_access_token,
+                               current_refresh_token, CLIENT_SECRET, USERNAME, PS)
 
-    # print(refresh_access_token.get_refresh_token())
+    print(accesstoken.access_token_expired())
+
+    # view_formulas = view_config()
+    # print(view_formulas.formulas())
 
 
 if __name__ == "__main__":
     main()
-
-
-# def get_access_token():
-#     requests.post("https://api-int.truckstop.com/rates/v1/analysis")
-
-
-# def lookup_lane():
-
-
-# print(get_initial_refresh_token(USERNAME, PS, CLIENT_SECRET))
-
-# print(get_refresh_token(USERNAME, PS, CLIENT_SECRET))
-
-# headers = {"Authorization": "Bearer 0f6cb60d-f11a-4b12-9aef-c7d084c97d38","Content-Type": "application/json"}
-# data = {"startDtTime":yesterdaystarttime, "endDtTime":yesterdayendtime, "pageNumber":pagenumber}
-# r = requests.post('https://www.fleetview.net/restapi/events', headers=headers, json=data)
