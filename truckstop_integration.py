@@ -74,7 +74,7 @@ class access_token(refresh_token):
         return r.status_code
 
     def get_access_token(self):
-        if self.access_token_expired(self) != 200:
+        if self.access_token_expired() != 200:
             refresh_token.get_refresh_token(self)
 
             headers = {"Authorization": f"Basic {CLIENT_SECRET}",
@@ -117,7 +117,37 @@ class view_config(access_token):
             access_token.get_access_token(self)
             return self.formulas()
 
+    def sources(self):
+        headers = {"Authorization": f"Bearer {self.current_access_token}",
+                   "Content-Type": "application/x-www-form-urlencoded"}
+        r = requests.get("https://api-int.truckstop.com/rates/v1/sources",
+                         headers=headers)
+        json_response = r.json()
+        return json_response
 
+    def source_process(self):
+        if access_token.access_token_expired(self) == 200:
+            return self.sources()
+        else:
+            access_token.get_refresh_token(self)
+            access_token.get_access_token(self)
+            return self.sources()
+
+    def rate_analysis_credtis(self):
+        headers = {"Authorization": f"Bearer {self.current_access_token}",
+                   "Content-Type": "application/json"}
+        r = requests.get("https://api-int.truckstop.com/rates/v1/account/billing",
+                         headers=headers)
+        json_response = r.json()
+        return json_response
+
+    def rate_analysis_credits_process(self):
+        if access_token.access_token_expired(self) == 200:
+            return self.rate_analysis_credtis()
+        else:
+            access_token.get_refresh_token(self)
+            access_token.get_access_token(self)
+            return self.rate_analysis_credtis()
 
 
 def main():
@@ -135,7 +165,7 @@ def main():
 
     receive_formula = view_config(current_access_token, current_refresh_token, CLIENT_SECRET, USERNAME, PS)
 
-    print(receive_formula.formula_process())
+    print(receive_formula.rate_analysis_credits_process())
 
 
 if __name__ == "__main__":
