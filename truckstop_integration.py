@@ -39,22 +39,25 @@ class refresh_token(initial_refresh_token):
         if self.current_refresh_token == "":
             new_refresh_token = initial_refresh_token.get_initial_refresh_token(
                 self)
-            db.update({"refresh_token": new_refresh_token},
-                      User.refresh_token == "")
+            db.update({"refresh_token": new_refresh_token})
+            self.current_refresh_token = db.all()[0].get('refresh_token')
             return new_refresh_token
 
         else:
             headers = {"Authorization": f"Basic {CLIENT_SECRET}",
                        "Content-Type": "application/x-www-form-urlencoded"}
             data = {"scope": "rates", "grant_type": "refresh_token",
-                    "refresh_token": current_refresh_token}
+                    "refresh_token": self.current_refresh_token}
             r = requests.post("https://api-int.truckstop.com/auth/token",
                               headers=headers, data=data)
 
             json_response = r.json()
             new_refresh_token = json_response['refresh_token']
             db.update({"refresh_token": new_refresh_token})
+            self.current_refresh_token = new_refresh_token
             return new_refresh_token
+
+
 
 
 class access_token(refresh_token):
@@ -63,33 +66,42 @@ class access_token(refresh_token):
         refresh_token.__init__(self, current_refresh_token,
                                CLIENT_SECRET, USERNAME, PS)
 
-    def get_access_token(self):
-        headers = {"Authorization": f"Basic {CLIENT_SECRET}",
-                   "Content-Type": "application/x-www-form-urlencoded"}
-        data = {"scope": "rates", "grant_type": "refresh_token",
-                "refresh_token": current_refresh_token}
-        r = requests.post("https://api-int.truckstop.com/auth/token",
-                          headers=headers, data=data)
-
-        json_response = r.json()
-        new_access_token = json_response['access_token']
-        db.update({"access_token": new_access_token})
-        return new_access_token
-
     def access_token_expired(self):
-        headers = {"Authorization": f"Bearer {current_refresh_token}",
+        headers = {"Authorization": f"Bearer {self.current_access_token}",
                    "Content-Type": "application/json"}
         r = requests.get(
             "https://api-int.truckstop.com/rates/v1/formulas", headers=headers)
-        # json_response = r.json()
         return r.status_code
 
+    def get_access_token(self):
+        if self.access_token_expired(self) != 200:
+            refresh_token.get_refresh_token(self)
 
-class view_config:
+            headers = {"Authorization": f"Basic {CLIENT_SECRET}",
+                       "Content-Type": "application/x-www-form-urlencoded"}
+            data = {"scope": "rates", "grant_type": "refresh_token",
+                    "refresh_token": self.current_refresh_token}
+            r = requests.post("https://api-int.truckstop.com/auth/token",
+                              headers=headers, data=data)
+            json_response = r.json()
+            new_access_token = json_response['access_token']
+            new_refresh_token = json_response['refresh_token']
+            db.update({"access_token": new_access_token})
+            db.update({"refresh_token": new_refresh_token})
+            self.current_refresh_token = db.all()[0].get('refresh_token')
+            self.current_access_token = db.all()[0].get('access_token')
+            return new_access_token
+        else:
+            return current_access_token
+
+
+class view_config(access_token):
+    def __init__(self, current_access_token, current_refresh_token, CLIENT_SECRET, USERNAME, PS):
+
+        access_token.__init__(self, current_access_token, current_refresh_token,
+                           CLIENT_SECRET, USERNAME, PS)
     def formulas(self):
-        # if current_access_token == "":
-
-        headers = {"Authorization": f"Bearer {current_refresh_token}",
+        headers = {"Authorization": f"Bearer {self.current_access_token}",
                    "Content-Type": "application/json"}
         r = requests.get("https://api-int.truckstop.com/rates/v1/formulas",
                          headers=headers)
@@ -97,20 +109,33 @@ class view_config:
         return json_response
 
 
+    def formula_process(self):
+        if access_token.access_token_expired(self) == 200:
+            return self.formulas()
+        else:
+            access_token.get_refresh_token(self)
+            access_token.get_access_token(self)
+            return self.formulas()
+
+
+
+
 def main():
     # classes
-    receive_refresh_token = refresh_token(
-        current_refresh_token, CLIENT_SECRET, USERNAME, PS)
 
-    receive_refresh_token.get_refresh_token()
+    # receive_refresh_token = refresh_token(
+    #     current_refresh_token, CLIENT_SECRET, USERNAME, PS)
 
-    accesstoken = access_token(current_access_token,
-                               current_refresh_token, CLIENT_SECRET, USERNAME, PS)
+    # print(receive_refresh_token.access_token_expired())
 
-    print(accesstoken.access_token_expired())
+    # receive_access_token = access_token(
+    #     current_access_token, current_refresh_token, CLIENT_SECRET, USERNAME, PS)
 
-    # view_formulas = view_config()
-    # print(view_formulas.formulas())
+    # print(receive_access_token.access_token_expired())
+
+    receive_formula = view_config(current_access_token, current_refresh_token, CLIENT_SECRET, USERNAME, PS)
+
+    print(receive_formula.formula_process())
 
 
 if __name__ == "__main__":
