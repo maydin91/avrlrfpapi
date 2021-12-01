@@ -1,6 +1,7 @@
 import requests
 from tinydb import TinyDB, Query
 import json
+import pyodbc
 
 
 class initial_refresh_token:
@@ -201,16 +202,34 @@ class lanes(access_token):
             access_token.get_access_token(self)
             return self.lane_lookup()
 
-# class insert_db(lanes):
-#     conn = pyodbc.connect(
+class insert_db(lanes):
+    conn = pyodbc.connect(
 
-#     "Driver={SQL Server Native Client 11.0};"
-#     "Server=RT-TABDB;"
-#     "Database=McLeodTMS;"
-#     "Trusted_Connection=no;"
-#     "UID=SuperUser;"
-#     "PWD=Sm00thy!!@RTS;"
-#     )
+    "Driver={SQL Server Native Client 11.0};"
+    "Server=RT-TABDB;"
+    "Database=McLeodTMS;"
+    "Trusted_Connection=no;"
+    "UID=SuperUser;"
+    "PWD=Sm00thy!!@RTS;"
+    )
+
+    now = datetime.datetime.now().strftime('%Y-%m-%d %H:%M')
+
+    def insert_truckstop_integration(self, query):
+
+    cursor = conn.cursor()
+    cursor.execute(query)
+
+    conn.commit()
+    cursor.close()
+    conn.close()
+
+
+
+    def generate_query(self):
+        query = f"insert into truckstop_data_store values('{self.now}','{}',)"
+        return query
+
 
 
 def main():
