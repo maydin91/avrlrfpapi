@@ -202,15 +202,16 @@ class lanes(access_token):
             access_token.get_access_token(self)
             return self.lane_lookup()
 
+
 class insert_db(lanes):
     conn = pyodbc.connect(
 
-    "Driver={SQL Server Native Client 11.0};"
-    "Server=RT-TABDB;"
-    "Database=McLeodTMS;"
-    "Trusted_Connection=no;"
-    "UID=SuperUser;"
-    "PWD=Sm00thy!!@RTS;"
+        "Driver={SQL Server Native Client 11.0};"
+        "Server=RT-TABDB;"
+        "Database=McLeodTMS;"
+        "Trusted_Connection=no;"
+        "UID=SuperUser;"
+        "PWD=Sm00thy!!@RTS;"
     )
 
     now = datetime.datetime.now().strftime('%Y-%m-%d %H:%M')
@@ -224,12 +225,9 @@ class insert_db(lanes):
     cursor.close()
     conn.close()
 
-
-
     def generate_query(self):
         query = f"insert into truckstop_data_store values('{self.now}','{}',)"
         return query
-
 
 
 def main():
