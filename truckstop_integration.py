@@ -1,7 +1,6 @@
 import requests
 from tinydb import TinyDB, Query
 import json
-import pyodbc
 
 
 class initial_refresh_token:
@@ -24,6 +23,7 @@ class initial_refresh_token:
         json_response = r.json()
         intial_refresh_token = json_response['refresh_token']
         self.db.update({"refresh_token": intial_refresh_token})
+        self.current_refresh_token = intial_refresh_token
         return intial_refresh_token
 
 
@@ -203,33 +203,6 @@ class lanes(access_token):
             return self.lane_lookup()
 
 
-class insert_db(lanes):
-    conn = pyodbc.connect(
-
-        "Driver={SQL Server Native Client 11.0};"
-        "Server=RT-TABDB;"
-        "Database=McLeodTMS;"
-        "Trusted_Connection=no;"
-        "UID=SuperUser;"
-        "PWD=Sm00thy!!@RTS;"
-    )
-
-    now = datetime.datetime.now().strftime('%Y-%m-%d %H:%M')
-
-    def insert_truckstop_integration(self, query):
-
-    cursor = conn.cursor()
-    cursor.execute(query)
-
-    conn.commit()
-    cursor.close()
-    conn.close()
-
-    def generate_query(self):
-        query = f"insert into truckstop_data_store values('{self.now}','{}',)"
-        return query
-
-
 def main():
     # classes
 
@@ -245,11 +218,8 @@ def main():
 
     # print(receive_formula.formula_process())
 
-    # get_rate = lanes("R", "Flat", "TL", null, null, null, "Ballinger", "TX", null, null, "Tampa",
-    #                  "FL", null, null, null, "Flat", "1 Year Avg Rates", "2021-11-01", "2021-11-10")
-
-    get_rate = lanes("R", "Flat", "TL", None, None, None, "Ballinger", "TX", None, None, "McDonough",
-                     "GA", None, None, None, "Flat", "1 Year Avg Rates", "2021-11-01", "2021-11-10")
+    get_rate = lanes("R", "Flat", "TL", None, None, None, "Dallas", "TX", None, None, "Tampa",
+                     "FL", None, None, None, "Flat", "1 Year Avg Rates", "2021-11-01", "2021-11-10")
 
     print(get_rate.lane_process())
 
