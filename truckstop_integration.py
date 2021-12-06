@@ -45,11 +45,15 @@ class refresh_token(initial_refresh_token):
             r = requests.post("https://api-int.truckstop.com/auth/token",
                               headers=headers, data=data)
 
-            json_response = r.json()
-            new_refresh_token = json_response['refresh_token']
-            self.db.update({"refresh_token": new_refresh_token})
-            self.current_refresh_token = new_refresh_token
-            return new_refresh_token
+            print(r.status_code)
+            if r.status_code != 200:
+                return initial_refresh_token.get_initial_refresh_token(self)
+            else:
+                json_response = r.json()
+                new_refresh_token = json_response['refresh_token']
+                self.db.update({"refresh_token": new_refresh_token})
+                self.current_refresh_token = new_refresh_token
+                return new_refresh_token
 
 
 class access_token(refresh_token):
