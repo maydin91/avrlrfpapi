@@ -30,8 +30,7 @@ def rate_lookup_handler():
         response.headers.add('Access-Control-Allow-Headers', '*')
         response.headers.add('Access-Control-Allow-Methods', '*')
         return response
-    elif:
-        request.method == 'GET':
+    elif request.method == 'GET':
         params = request.get_json()
         resp = truckstop_integration.XXX
         r = make_response(ujson.dumps(resp), 200, {
