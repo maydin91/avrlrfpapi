@@ -10,7 +10,7 @@ auth = HTTPBasicAuth()
 
 db_access = TinyDB("db_access.json")
 User = Query()
-credentials = db.all()[0]
+credentials = db_access.all()[0]
 
 
 @auth.verify_password
