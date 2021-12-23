@@ -1,6 +1,8 @@
 import requests
 from tinydb import TinyDB, Query
 import json
+import datetime
+import psycopg2
 
 
 class initial_refresh_token:
@@ -207,26 +209,64 @@ class lanes(access_token):
             return self.lane_lookup()
 
 
-def main():
-    # classes
+class rate_lookup(lanes):
+    DB_HOST = "ec2-50-19-125-153.compute-1.amazonaws.com"
+    DB_NAME = "d2ce1t4f7orbvr"
+    DB_USER = "u9d8kvc6ea76ag"
+    DB_PASS = "pfb7e47665fc06249a5ec338ab7ed3f7b3db879e72f907bbaffd05e523815613e"
+    now = datetime.datetime.now().strftime('%Y-%m-%d %H:%M')
 
-    # receive_refresh_token = initial_refresh_token()
+    def insert_truckstop_integration(self, conn, query):
+        cursor = conn.cursor()
+        cursor.execute(query)
 
-    # print(receive_refresh_token.get_initial_refresh_token())
+        conn.commit()
+        cursor.close()
+        conn.close()
 
-    # receive_access_token = access_token()
+    def generate_query(self, orig_city, orig_state, orig_zip, dest_city, dest_state, dest_zip, eq_group, rate_type, fromdate, todate, miles, flatrate, fuelcost, rpm, allin):
+        query = f"insert into truckstop_data_store(lookupdate,orig_city, orig_state,orig_zip, dest_city, dest_state, dest_zip, eq_group, rate_type,fromdate,todate, miles, flatrate, fuelcost, rpm, allin) values('{now}','{orig_city}', '{orig_state}','{orig_zip}', '{dest_city}', '{dest_state}', '{dest_zip}', '{eq_group}', '{rate_type}','{fromdate}','{todate}', '{miles}', '{flatrate}', '{fuelcost}', '{rpm}', '{allin}')"
+        return query
 
-    # print(receive_access_token.get_access_token())
+    def process(self, params):
+        try:
+            get_rate = lanes(params['equipment_group'], "Flat", "TL", None, None, None, params['orig_city'], params['orig_state'], None, None, params['dest_city'],
+                             params['dest_state'], None, None, None, "Flat", "1 Year Avg Rates", params['fromDate'], params['toDate'])
 
-    # receive_formula = view_config()
+            result = get_rate.lane_process()
+            conn = psycopg2.connect(
+                dbname=self.DB_NAME, user=self.DB_USER, password=self.DB_PASS, host=self.DB_HOST)
 
-    # print(receive_formula.formula_process())
+            query = generate_query(params['orig_city'], params['orig_state'], result['originZip'],
+                                   params['dest_city'], params['dest_state'], result['destinationZip'], params['equipment_group'], "Flat", params['fromDate'], params['toDate'], result['miles'], result['flatRate'], result['fuelCost'], result['rpm'], result['allin'])
 
-    get_rate = lanes("R", "Flat", "TL", None, None, None, "Dallas", "TX", None, None, "Tampa",
-                     "FL", None, None, None, "Flat", "1 Year Avg Rates", "2021-11-01", "2021-11-10")
+            insert_truckstop_integration(self, conn, query)
 
-    print(get_rate.lane_process())
+            return result
 
+        except Exception as e:
+            print(e)
+            return {'status': 'failed'}
 
-if __name__ == "__main__":
-    main()
+            # def main():
+            # classes
+
+            # receive_refresh_token = initial_refresh_token()
+
+            # print(receive_refresh_token.get_initial_refresh_token())
+
+            # receive_access_token = access_token()
+
+            # print(receive_access_token.get_access_token())
+
+            # receive_formula = view_config()
+
+            # print(receive_formula.formula_process())
+
+            #     get_rate = lanes("R", "Flat", "TL", None, None, None, "Atlanta", "GA", None, None, "Orlando",
+            #                      "FL", None, None, None, "Flat", "1 Year Avg Rates", "2021-01-01", "2021-11-30")
+
+            #     print(get_rate.lane_process())
+
+            # if __name__ == "__main__":
+            #     main()
