@@ -232,8 +232,8 @@ class rate_lookup(lanes):
         try:
             # get_rate = lanes(params['equipment_group'], "Flat", "TL", None, None, None, params['orig_city'], params['orig_state'], None, None, params['dest_city'],
                              # params['dest_state'], None, None, None, "Flat", "1 Year Avg Rates", params['fromDate'], params['toDate'])
-            get_rate = resp_obj
-            result = get_rate.lane_process()
+            # get_rate = resp_obj
+            result = lanes.lane_process(self)
             conn = psycopg2.connect(
                 dbname=self.DB_NAME, user=self.DB_USER, password=self.DB_PASS, host=self.DB_HOST)
 
