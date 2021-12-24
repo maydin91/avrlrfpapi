@@ -32,7 +32,7 @@ def rate_lookup_handler():
         return response
     elif request.method == 'GET':
         params = request.get_json()
-        resp = truckstop_integration.XXX
+        resp = truckstop_integration.rate_lookup.process(params)
         r = make_response(ujson.dumps(resp), 200, {
                           'Content-type': 'application/JSON', 'Access-Control-Allow-Origin': '*'})
         return r
