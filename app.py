@@ -17,6 +17,7 @@ credentials = db_access.all()[0]
 def verify(username, password):
     if not(username and password):
         return False
+    print(credentials.get(username))
     return credentials.get(username) == password
 
 
