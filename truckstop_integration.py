@@ -234,12 +234,13 @@ class rate_lookup(lanes):
                              # params['dest_state'], None, None, None, "Flat", "1 Year Avg Rates", params['fromDate'], params['toDate'])
             # get_rate = resp_obj
             result = lanes.lane_process(self)
-            result = result['data'][0]
+            result_info = result['data'][0]
+            result_rates = result_info['rateEngineResults'][0]
             conn = psycopg2.connect(
                 dbname=self.DB_NAME, user=self.DB_USER, password=self.DB_PASS, host=self.DB_HOST)
 
-            query = self.generate_query(self.originCity, self.originState, result['originZip'],
-                                        self.destinationCity, self.destinationState, result['destinationZip'], self.equipmentGroup, "Flat", self.timeFrameFromDate, self.timeFrameToDate, result['miles'], result['flatRate'], result['fuelCost'], result['rpm'], result['allin'])
+            query = self.generate_query(self.originCity, self.originState, result_info['originZip'],
+                                        self.destinationCity, self.destinationState, result_info['destinationZip'], self.equipmentGroup, "Flat", self.timeFrameFromDate, self.timeFrameToDate, result_info['miles'], result_rates['flatRate'], result_rates['fuelCost'], result_rates['rpm'], result_rates['allin'])
 
             insert_truckstop_integration(self, conn, query)
 
