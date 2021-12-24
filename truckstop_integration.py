@@ -225,7 +225,7 @@ class rate_lookup(lanes):
         conn.close()
 
     def generate_query(self, orig_city, orig_state, orig_zip, dest_city, dest_state, dest_zip, eq_group, rate_type, fromdate, todate, miles, flatrate, fuelcost, rpm, allin):
-        query = f"insert into truckstop_data_store(lookupdate,orig_city, orig_state,orig_zip, dest_city, dest_state, dest_zip, eq_group, rate_type,fromdate,todate, miles, flatrate, fuelcost, rpm, allin) values('{now}','{orig_city}', '{orig_state}','{orig_zip}', '{dest_city}', '{dest_state}', '{dest_zip}', '{eq_group}', '{rate_type}','{fromdate}','{todate}', '{miles}', '{flatrate}', '{fuelcost}', '{rpm}', '{allin}')"
+        query = f"insert into truckstop_data_store(lookupdate,orig_city, orig_state,orig_zip, dest_city, dest_state, dest_zip, eq_group, rate_type,fromdate,todate, miles, flatrate, fuelcost, rpm, allin) values('{self.now}','{orig_city}', '{orig_state}','{orig_zip}', '{dest_city}', '{dest_state}', '{dest_zip}', '{eq_group}', '{rate_type}','{fromdate}','{todate}', '{miles}', '{flatrate}', '{fuelcost}', '{rpm}', '{allin}')"
         return query
 
     def process(self):
