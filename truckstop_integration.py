@@ -228,11 +228,11 @@ class rate_lookup(lanes):
         query = f"insert into truckstop_data_store(lookupdate,orig_city, orig_state,orig_zip, dest_city, dest_state, dest_zip, eq_group, rate_type,fromdate,todate, miles, flatrate, fuelcost, rpm, allin) values('{now}','{orig_city}', '{orig_state}','{orig_zip}', '{dest_city}', '{dest_state}', '{dest_zip}', '{eq_group}', '{rate_type}','{fromdate}','{todate}', '{miles}', '{flatrate}', '{fuelcost}', '{rpm}', '{allin}')"
         return query
 
-    def process(self, params):
+    def process(self):
         try:
-            get_rate = lanes(params['equipment_group'], "Flat", "TL", None, None, None, params['orig_city'], params['orig_state'], None, None, params['dest_city'],
-                             params['dest_state'], None, None, None, "Flat", "1 Year Avg Rates", params['fromDate'], params['toDate'])
-
+            # get_rate = lanes(params['equipment_group'], "Flat", "TL", None, None, None, params['orig_city'], params['orig_state'], None, None, params['dest_city'],
+                             # params['dest_state'], None, None, None, "Flat", "1 Year Avg Rates", params['fromDate'], params['toDate'])
+            get_rate = resp_obj
             result = get_rate.lane_process()
             conn = psycopg2.connect(
                 dbname=self.DB_NAME, user=self.DB_USER, password=self.DB_PASS, host=self.DB_HOST)
