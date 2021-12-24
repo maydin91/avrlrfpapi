@@ -32,7 +32,7 @@ def rate_lookup_handler():
         return response
     elif request.method == 'GET':
         params = request.get_json()
-        resp_obj = truckstop_integration.rate_lookup(params['equipment_group'], "Flat", "TL", None, None, None, params['orig_city'], params['orig_state'], None, None, params['dest_city'],
+        resp_obj = truckstop_integration.rate_lookup(params['equipment_group'], None, "TL", None, None, None, params['orig_city'], params['orig_state'], None, None, params['dest_city'],
                                                      params['dest_state'], None, None, None, "Flat", "1 Year Avg Rates", params['fromDate'], params['toDate'])
         resp = resp_obj.process()
         r = make_response(ujson.dumps(resp), 200, {
