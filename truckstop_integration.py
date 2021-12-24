@@ -234,9 +234,10 @@ class rate_lookup(lanes):
                              # params['dest_state'], None, None, None, "Flat", "1 Year Avg Rates", params['fromDate'], params['toDate'])
             # get_rate = resp_obj
             result = lanes.lane_process(self)
+            result = result['data'][0]
             conn = psycopg2.connect(
                 dbname=self.DB_NAME, user=self.DB_USER, password=self.DB_PASS, host=self.DB_HOST)
-            print(result)
+
             query = self.generate_query(self.originCity, self.originState, result['originZip'],
                                         self.destinationCity, self.destinationState, result['destinationZip'], self.equipmentGroup, "Flat", self.timeFrameFromDate, self.timeFrameToDate, result['miles'], result['flatRate'], result['fuelCost'], result['rpm'], result['allin'])
 
