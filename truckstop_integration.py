@@ -230,9 +230,6 @@ class rate_lookup(lanes):
 
     def process(self):
         try:
-            # get_rate = lanes(params['equipment_group'], "Flat", "TL", None, None, None, params['orig_city'], params['orig_state'], None, None, params['dest_city'],
-                             # params['dest_state'], None, None, None, "Flat", "1 Year Avg Rates", params['fromDate'], params['toDate'])
-            # get_rate = resp_obj
             result = lanes.lane_process(self)
             result_info = result['data'][0]
             result_rates = result_info['rateEngineResults'][0]
@@ -249,26 +246,3 @@ class rate_lookup(lanes):
         except Exception as e:
             print(e)
             return {'status': 'failed'}
-
-            # def main():
-            # classes
-
-            # receive_refresh_token = initial_refresh_token()
-
-            # print(receive_refresh_token.get_initial_refresh_token())
-
-            # receive_access_token = access_token()
-
-            # print(receive_access_token.get_access_token())
-
-            # receive_formula = view_config()
-
-            # print(receive_formula.formula_process())
-
-            #     get_rate = lanes("R", "Flat", "TL", None, None, None, "Atlanta", "GA", None, None, "Orlando",
-            #                      "FL", None, None, None, "Flat", "1 Year Avg Rates", "2021-01-01", "2021-11-30")
-
-            #     print(get_rate.lane_process())
-
-            # if __name__ == "__main__":
-            #     main()
