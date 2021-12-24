@@ -242,7 +242,7 @@ class rate_lookup(lanes):
             query = self.generate_query(self.originCity, self.originState, result_info['originZip'],
                                         self.destinationCity, self.destinationState, result_info['destinationZip'], self.equipmentGroup, "Flat", self.timeFrameFromDate, self.timeFrameToDate, result_info['miles'], result_rates['flatRate'], result_rates['fuelCost'], result_rates['rpm'], result_rates['allin'])
 
-            insert_truckstop_integration(self, conn, query)
+            self.insert_truckstop_integration(conn, query)
 
             return result
 
