@@ -21,7 +21,7 @@ def verify(username, password):
 
 
 @app.route('/rate_lookup', methods=['GET', 'OPTIONS'])
-# @auth.login_required
+@auth.login_required
 def rate_lookup_handler():
     if request.method == 'OPTIONS':
 
@@ -31,7 +31,6 @@ def rate_lookup_handler():
         response.headers.add('Access-Control-Allow-Methods', '*')
         return response
     elif request.method == 'GET':
-        print(credentials)
         params = request.get_json()
         resp = truckstop_integration.XXX
         r = make_response(ujson.dumps(resp), 200, {
