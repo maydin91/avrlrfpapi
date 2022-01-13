@@ -36,7 +36,7 @@ def rate_lookup_handler():
                                                      params['dest_state'], None, None, None, "Flat", "1 Year Avg Rates", params['fromDate'], params['toDate'])
         resp = resp_obj.process()
         r = make_response(ujson.dumps(resp), 200, {
-                          'Content-type': 'application/JSON', 'Access-Control-Allow-Origin': '*'})
+                          'Content-type': 'application/JSON', 'Access-Control-Allow-Origin': '*', 'Access-Control-Allow-Headers', '*', 'Access-Control-Allow-Methods', '*'})
         return r
 
 
